@@ -1,0 +1,244 @@
+Server PID: 7431
+=== 01-get-all-books ===
+$ curl http://localhost:5000/
+{
+    "1": {
+        "author": "Chinua Achebe",
+        "title": "Things Fall Apart",
+        "reviews": {}
+    },
+    "2": {
+        "author": "Hans Christian Andersen",
+        "title": "Fairy tales",
+        "reviews": {}
+    },
+    "3": {
+        "author": "Dante Alighieri",
+        "title": "The Divine Comedy",
+        "reviews": {}
+    },
+    "4": {
+        "author": "Unknown",
+        "title": "The Epic Of Gilgamesh",
+        "reviews": {}
+    },
+    "5": {
+        "author": "Unknown",
+        "title": "The Book Of Job",
+        "reviews": {}
+    },
+    "6": {
+        "author": "Unknown",
+        "title": "One Thousand and One Nights",
+        "reviews": {}
+    },
+    "7": {
+        "author": "Unknown",
+        "title": "Njál's Saga",
+        "reviews": {}
+    },
+    "8": {
+        "author": "Jane Austen",
+        "title": "Pride and Prejudice",
+        "reviews": {}
+    },
+    "9": {
+        "author": "Honoré de Balzac",
+        "title": "Le Père Goriot",
+        "reviews": {}
+    },
+    "10": {
+        "author": "Samuel Beckett",
+        "title": "Molloy, Malone Dies, The Unnamable, the trilogy",
+        "reviews": {}
+    }
+}
+HTTP_STATUS:200
+
+=== 02-get-book-isbn-1 ===
+$ curl http://localhost:5000/isbn/1
+{
+    "author": "Chinua Achebe",
+    "title": "Things Fall Apart",
+    "reviews": {}
+}
+HTTP_STATUS:200
+
+=== 03-get-books-by-author ===
+$ curl http://localhost:5000/author/Jane%20Austen
+{
+    "0": {
+        "author": "Jane Austen",
+        "title": "Pride and Prejudice",
+        "reviews": {}
+    }
+}
+HTTP_STATUS:200
+
+=== 04-get-books-by-title ===
+$ curl http://localhost:5000/title/Pride%20and%20Prejudice
+{
+    "0": {
+        "author": "Jane Austen",
+        "title": "Pride and Prejudice",
+        "reviews": {}
+    }
+}
+HTTP_STATUS:200
+
+=== 05-get-review-isbn-1-empty ===
+$ curl http://localhost:5000/review/1
+{}
+HTTP_STATUS:200
+
+=== 06-register-jarif ===
+$ curl -X POST http://localhost:5000/register -H Content-Type: application/json -d {"username":"jarif","password":"password123"}
+{"message":"User successfully registered. Now you can login"}
+HTTP_STATUS:200
+
+=== 07-register-duplicate ===
+$ curl -X POST http://localhost:5000/register -H Content-Type: application/json -d {"username":"jarif","password":"password123"}
+{"message":"User already exists!"}
+HTTP_STATUS:404
+
+=== 08-login ===
+$ curl -c terminal-outputs/cookies.txt -b terminal-outputs/cookies.txt -X POST http://localhost:5000/customer/login -H Content-Type: application/json -d {"username":"jarif","password":"password123"}
+{"message":"User successfully logged in","token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjoicGFzc3dvcmQxMjMiLCJpYXQiOjE3OTM5MTQzNzgsImV4cCI6MTc5MzkxNzk3OH0.10lfYWFy378k3rZenfLJhbB3MaCtRCAzisNTpF_M31w"}
+HTTP_STATUS:200
+
+=== 09-login-wrong-password ===
+$ curl -X POST http://localhost:5000/customer/login -H Content-Type: application/json -d {"username":"jarif","password":"wrong"}
+{"message":"Invalid Login. Check username and password"}
+HTTP_STATUS:208
+
+=== 10-add-review-unauthenticated ===
+$ curl -X PUT http://localhost:5000/customer/auth/review/1?review=Should%20fail
+{"message":"User not logged in"}
+HTTP_STATUS:403
+
+=== 11-add-review ===
+$ curl -b terminal-outputs/cookies.txt -X PUT http://localhost:5000/customer/auth/review/1?review=Great%20book%2C%20a%20classic.
+{"message":"The review for the book with ISBN 1 has been added/updated.","reviews":{"jarif":"Great book, a classic."}}
+HTTP_STATUS:200
+
+=== 12-get-review-after-add ===
+$ curl http://localhost:5000/review/1
+{
+    "jarif": "Great book, a classic."
+}
+HTTP_STATUS:200
+
+=== 13-modify-review ===
+$ curl -b terminal-outputs/cookies.txt -X PUT http://localhost:5000/customer/auth/review/1 -H Content-Type: application/json -d {"review":"Updated review: even better on a second read."}
+{"message":"The review for the book with ISBN 1 has been added/updated.","reviews":{"jarif":"Updated review: even better on a second read."}}
+HTTP_STATUS:200
+
+=== 14-get-review-after-modify ===
+$ curl http://localhost:5000/review/1
+{
+    "jarif": "Updated review: even better on a second read."
+}
+HTTP_STATUS:200
+
+=== 15-delete-review ===
+$ curl -b terminal-outputs/cookies.txt -X DELETE http://localhost:5000/customer/auth/review/1
+{"message":"The review for the book with ISBN 1 has been deleted.","reviews":{}}
+HTTP_STATUS:200
+
+=== 16-get-review-after-delete ===
+$ curl http://localhost:5000/review/1
+{}
+HTTP_STATUS:200
+
+=== 17-async-all-books ===
+$ curl http://localhost:5000/async/books
+{
+    "1": {
+        "author": "Chinua Achebe",
+        "title": "Things Fall Apart",
+        "reviews": {}
+    },
+    "2": {
+        "author": "Hans Christian Andersen",
+        "title": "Fairy tales",
+        "reviews": {}
+    },
+    "3": {
+        "author": "Dante Alighieri",
+        "title": "The Divine Comedy",
+        "reviews": {}
+    },
+    "4": {
+        "author": "Unknown",
+        "title": "The Epic Of Gilgamesh",
+        "reviews": {}
+    },
+    "5": {
+        "author": "Unknown",
+        "title": "The Book Of Job",
+        "reviews": {}
+    },
+    "6": {
+        "author": "Unknown",
+        "title": "One Thousand and One Nights",
+        "reviews": {}
+    },
+    "7": {
+        "author": "Unknown",
+        "title": "Njál's Saga",
+        "reviews": {}
+    },
+    "8": {
+        "author": "Jane Austen",
+        "title": "Pride and Prejudice",
+        "reviews": {}
+    },
+    "9": {
+        "author": "Honoré de Balzac",
+        "title": "Le Père Goriot",
+        "reviews": {}
+    },
+    "10": {
+        "author": "Samuel Beckett",
+        "title": "Molloy, Malone Dies, The Unnamable, the trilogy",
+        "reviews": {}
+    }
+}
+HTTP_STATUS:200
+
+=== 18-async-isbn-2 ===
+$ curl http://localhost:5000/async/isbn/2
+{
+    "author": "Hans Christian Andersen",
+    "title": "Fairy tales",
+    "reviews": {}
+}
+HTTP_STATUS:200
+
+=== 19-async-author ===
+$ curl http://localhost:5000/async/author/Jane%20Austen
+{
+    "0": {
+        "author": "Jane Austen",
+        "title": "Pride and Prejudice",
+        "reviews": {}
+    }
+}
+HTTP_STATUS:200
+
+=== 20-async-title ===
+$ curl http://localhost:5000/async/title/Pride%20and%20Prejudice
+{
+    "0": {
+        "author": "Jane Austen",
+        "title": "Pride and Prejudice",
+        "reviews": {}
+    }
+}
+HTTP_STATUS:200
+
+=== server.log ===
+Server is running on port 5000
+
+Server PID was 7431 — stopping it now.
+DONE
